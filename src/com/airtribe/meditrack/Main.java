@@ -65,95 +65,140 @@ public class Main {
             System.out.println("4. View Doctors");
             System.out.println("5. View Patients");
             System.out.println("6. View Appointments");
-            System.out.println("8. Generate Bill");
             System.out.println("7. Exit");
+            System.out.println("8. Generate Bill");
             System.out.print("Enter your choice: ");
 
-            int choice = sc.nextInt();
+            String choiceLine = sc.nextLine().trim();
+            int choice;
+            try {
+                choice = Integer.parseInt(choiceLine);
+            } catch (NumberFormatException nfe) {
+                System.out.println("Invalid input. Please enter a number between 1 and 8.");
+                continue;
+            }
 
             switch (choice) {
 
                 case 1:
-                    int dId = idGenerator.generateId();
-                    System.out.println("Assigned Doctor ID: " + dId);
+                    {
+                        int dId = idGenerator.generateId();
+                        System.out.println("Assigned Doctor ID: " + dId);
 
-                    System.out.print("Enter Name: ");
-                    String dName = sc.nextLine();
+                        System.out.print("Enter Name: ");
+                        String dName = sc.nextLine().trim();
 
-                    System.out.print("Enter Age: ");
-                    int dAge = sc.nextInt();
+                        System.out.print("Enter Age: ");
+                        String ageLine = sc.nextLine().trim();
+                        int dAge;
+                        try {
+                            dAge = Integer.parseInt(ageLine);
+                        } catch (NumberFormatException nfe) {
+                            System.out.println("Invalid age. Aborting add doctor.");
+                            break;
+                        }
 
-                    System.out.print("Enter Fee: ");
-                    double fee = sc.nextDouble();
-                    sc.nextLine();
+                        System.out.print("Enter Fee: ");
+                        String feeLine = sc.nextLine().trim();
+                        double fee;
+                        try {
+                            fee = Double.parseDouble(feeLine);
+                        } catch (NumberFormatException nfe) {
+                            System.out.println("Invalid fee. Aborting add doctor.");
+                            break;
+                        }
 
-                    Doctor doctor = new Doctor(
-                        dId, dName, dAge,
-                        Specialization.CARDIOLOGY,
-                        fee
-                    );
+                        Doctor doctor = new Doctor(
+                            dId, dName, dAge,
+                            Specialization.CARDIOLOGY,
+                            fee
+                        );
 
-                    try {
-                        doctorService.addDoctor(doctor);
-                    } catch (InvalidDataException e) {
-                        System.out.println("Error adding doctor: " + e.getMessage());
+                        try {
+                            doctorService.addDoctor(doctor);
+                            System.out.println("Doctor added successfully.");
+                        } catch (InvalidDataException e) {
+                            System.out.println("Error adding doctor: " + e.getMessage());
+                        }
                     }
                     break;
 
                 case 2:
-                    int pId = idGenerator.generateId();
-                    System.out.println("Assigned Patient ID: " + pId);
+                    {
+                        int pId = idGenerator.generateId();
+                        System.out.println("Assigned Patient ID: " + pId);
 
-                    System.out.print("Enter Name: ");
-                    String pName = sc.nextLine();
+                        System.out.print("Enter Name: ");
+                        String pName = sc.nextLine().trim();
 
-                    System.out.print("Enter Age: ");
-                    int pAge = sc.nextInt();
-                    sc.nextLine();
+                        System.out.print("Enter Age: ");
+                        String pAgeLine = sc.nextLine().trim();
+                        int pAge;
+                        try {
+                            pAge = Integer.parseInt(pAgeLine);
+                        } catch (NumberFormatException nfe) {
+                            System.out.println("Invalid age. Aborting add patient.");
+                            break;
+                        }
 
-                    System.out.print("Enter Disease: ");
-                    String disease = sc.nextLine();
+                        System.out.print("Enter Disease: ");
+                        String disease = sc.nextLine().trim();
 
-                    Patient patient = new Patient(pId, pName, pAge, disease);
-                    try {
-                        patientService.addPatient(patient);
-                    } catch (InvalidDataException e) {
-                        System.out.println("Error adding patient: " + e.getMessage());
+                        Patient patient = new Patient(pId, pName, pAge, disease);
+                        try {
+                            patientService.addPatient(patient);
+                            System.out.println("Patient added successfully.");
+                        } catch (InvalidDataException e) {
+                            System.out.println("Error adding patient: " + e.getMessage());
+                        }
                     }
                     break;
 
                 case 3:
-                    int aId = idGenerator.generateId();
-                    System.out.println("Assigned Appointment ID: " + aId);
+                    {
+                        int aId = idGenerator.generateId();
+                        System.out.println("Assigned Appointment ID: " + aId);
 
-                    System.out.print("Enter Patient ID: ");
-                    int patientId = sc.nextInt();
-
-                    System.out.print("Enter Doctor ID: ");
-                    int doctorId = sc.nextInt();
-                    sc.nextLine();
-
-                    Patient foundPatient =
-                        patientService.findPatientById(patientId);
-
-                    Doctor foundDoctor =
-                        doctorService.findDoctorById(doctorId);
-
-                    try {
-                        if (foundPatient != null && foundDoctor != null) {
-                            appointmentService.bookAppointment(
-                                    aId,
-                                    foundPatient,
-                                    foundDoctor,
-                                    LocalDate.now()
-                            );
-                        } else {
-                            System.out.println("Doctor or Patient not found!");
+                        System.out.print("Enter Patient ID: ");
+                        String patientIdLine = sc.nextLine().trim();
+                        int patientId;
+                        try {
+                            patientId = Integer.parseInt(patientIdLine);
+                        } catch (NumberFormatException nfe) {
+                            System.out.println("Invalid patient ID.");
+                            break;
                         }
-                    } catch (InvalidDataException e) {
-                        System.out.println("Invalid appointment data: " + e.getMessage());
-                    } catch (AppointmentNotFoundException e) {
-                        System.out.println("Appointment error: " + e.getMessage());
+
+                        System.out.print("Enter Doctor ID: ");
+                        String doctorIdLine = sc.nextLine().trim();
+                        int doctorId;
+                        try {
+                            doctorId = Integer.parseInt(doctorIdLine);
+                        } catch (NumberFormatException nfe) {
+                            System.out.println("Invalid doctor ID.");
+                            break;
+                        }
+
+                        Patient foundPatient = patientService.findPatientById(patientId);
+                        Doctor foundDoctor = doctorService.findDoctorById(doctorId);
+
+                        if (foundPatient == null) {
+                            System.out.println("Patient not found with ID: " + patientId);
+                            break;
+                        }
+                        if (foundDoctor == null) {
+                            System.out.println("Doctor not found with ID: " + doctorId);
+                            break;
+                        }
+
+                        try {
+                            appointmentService.bookAppointment(aId, foundPatient, foundDoctor, LocalDate.now());
+                            System.out.println("Appointment booked with ID: " + aId);
+                        } catch (InvalidDataException e) {
+                            System.out.println("Invalid appointment data: " + e.getMessage());
+                        } catch (AppointmentNotFoundException e) {
+                            System.out.println("Appointment error: " + e.getMessage());
+                        }
                     }
                     break;
 
@@ -170,14 +215,23 @@ public class Main {
                     break;
 
                 case 8:
-                    System.out.print("Enter Appointment ID: ");
-                    int billAppointmentId = sc.nextInt();
-                    sc.nextLine();
-                    try {
-                        com.airtribe.meditrack.entity.BillSummary summary = appointmentService.generateBill(billAppointmentId);
-                        System.out.println(summary.toString());
-                    } catch (AppointmentNotFoundException e) {
-                        System.out.println("Could not generate bill: " + e.getMessage());
+                    {
+                        System.out.print("Enter Appointment ID: ");
+                        String billIdLine = sc.nextLine().trim();
+                        int billAppointmentId;
+                        try {
+                            billAppointmentId = Integer.parseInt(billIdLine);
+                        } catch (NumberFormatException nfe) {
+                            System.out.println("Invalid appointment ID.");
+                            break;
+                        }
+
+                        try {
+                            com.airtribe.meditrack.entity.BillSummary summary = appointmentService.generateBill(billAppointmentId);
+                            System.out.println(summary.toString());
+                        } catch (AppointmentNotFoundException e) {
+                            System.out.println("Could not generate bill: " + e.getMessage());
+                        }
                     }
                     break;
 
@@ -194,7 +248,8 @@ public class Main {
                         System.out.println("Failed to save patients: " + e.getMessage());
                     }
                     System.out.println("Exiting...");
-                    System.exit(0);
+                    sc.close();
+                    return;
 
                 default:
                     System.out.println("Invalid choice!");

@@ -22,7 +22,7 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         IdGenerator idGenerator = IdGenerator.getInstance();
 
-        // Load persisted data (doctors and patients) and bootstrap ID generator
+        
         int maxExistingId = 0;
         try {
             var loadedDoctors = CSVUtil.loadDoctorsFromCSV(Constants.DOCTOR_FILE);

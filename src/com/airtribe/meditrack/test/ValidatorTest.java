@@ -3,9 +3,7 @@ package com.airtribe.meditrack.test;
 import com.airtribe.meditrack.exception.InvalidDataException;
 import com.airtribe.meditrack.util.Validator;
 
-/**
- * Small test harness to exercise the `Validator` utility methods.
- */
+
 public class ValidatorTest {
 
     public static void main(String[] args) {

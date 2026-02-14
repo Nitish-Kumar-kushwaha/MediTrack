@@ -14,27 +14,14 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Utility for simple CSV import/export of {@link Patient} records.
- *
- * Notes:
- * - Uses simple comma-separated values and {@code String.split(",")} for parsing.
- * - Uses try-with-resources to manage IO streams.
- */
+
 public final class CSVUtil {
 
     private CSVUtil() {
         throw new AssertionError("CSVUtil is a utility class and cannot be instantiated");
     }
 
-    /**
-     * Saves the given patients to the specified CSV file. Each line uses the
-     * format: id,name,age,disease
-     *
-     * @param patients list of patients to save; if null nothing will be written
-     * @param filePath path to output CSV file
-     * @throws IOException when an IO error occurs while writing the file
-     */
+    
     public static void savePatientsToCSV(List<Patient> patients, String filePath) throws IOException {
         if (patients == null) {
             return;
@@ -52,14 +39,7 @@ public final class CSVUtil {
         }
     }
 
-    /**
-     * Loads patients from the specified CSV file. Expects lines in the format:
-     * id,name,age,disease
-     *
-     * @param filePath path to input CSV file
-     * @return list of patients (empty list if file does not exist or contains no valid lines)
-     * @throws IOException when an IO error occurs while reading the file or when a line cannot be parsed
-     */
+    
     public static List<Patient> loadPatientsFromCSV(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         List<Patient> result = new ArrayList<>();
@@ -97,14 +77,7 @@ public final class CSVUtil {
         return result;
     }
 
-    /**
-     * Saves the given doctors to the specified CSV file. Each line uses the
-     * format: id,name,age,specialization,consultationFee
-     *
-     * @param doctors  list of doctors to save; if null nothing will be written
-     * @param filePath path to output CSV file
-     * @throws IOException when an IO error occurs while writing the file
-     */
+    
     public static void saveDoctorsToCSV(List<Doctor> doctors, String filePath) throws IOException {
         if (doctors == null) {
             return;
@@ -124,14 +97,7 @@ public final class CSVUtil {
         }
     }
 
-    /**
-     * Loads doctors from the specified CSV file. Expects lines in the format:
-     * id,name,age,specialization,consultationFee
-     *
-     * @param filePath path to input CSV file
-     * @return list of doctors (empty list if file does not exist or contains no valid lines)
-     * @throws IOException when an IO error occurs while reading the file or when a line cannot be parsed
-     */
+    
     public static List<Doctor> loadDoctorsFromCSV(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         List<Doctor> result = new ArrayList<>();

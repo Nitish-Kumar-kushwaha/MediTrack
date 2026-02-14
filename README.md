@@ -123,8 +123,8 @@ java -cp out com.airtribe.meditrack.Main
 
 ## Author
 
-- Author: Your Name (replace with your full name)
-- GitHub: https://github.com/yourusername (replace with your GitHub profile link)
+- Author: Nitish Kumar Kushwaha
+- GitHub: https://github.com/Nitish-Kumar-kushwaha
 
 ---
 

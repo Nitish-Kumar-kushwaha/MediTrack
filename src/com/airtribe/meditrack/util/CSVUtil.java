@@ -1,6 +1,8 @@
 package com.airtribe.meditrack.util;
 
+import com.airtribe.meditrack.entity.Doctor;
 import com.airtribe.meditrack.entity.Patient;
+import com.airtribe.meditrack.entity.Specialization;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -88,6 +90,81 @@ public final class CSVUtil {
                     result.add(patient);
                 } catch (NumberFormatException ex) {
                     throw new IOException("Failed to parse numeric value from line: " + line, ex);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Saves the given doctors to the specified CSV file. Each line uses the
+     * format: id,name,age,specialization,consultationFee
+     *
+     * @param doctors  list of doctors to save; if null nothing will be written
+     * @param filePath path to output CSV file
+     * @throws IOException when an IO error occurs while writing the file
+     */
+    public static void saveDoctorsToCSV(List<Doctor> doctors, String filePath) throws IOException {
+        if (doctors == null) {
+            return;
+        }
+
+        Path path = Paths.get(filePath);
+        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
+            for (Doctor d : doctors) {
+                String line = String.format("%d,%s,%d,%s,%.2f",
+                        d.getId(), d.getName(), d.getAge(),
+                        d.getSpecialization() == null ? "" : d.getSpecialization().name(),
+                        d.getConsultationFee());
+                writer.write(line);
+                writer.newLine();
+            }
+        }
+    }
+
+    /**
+     * Loads doctors from the specified CSV file. Expects lines in the format:
+     * id,name,age,specialization,consultationFee
+     *
+     * @param filePath path to input CSV file
+     * @return list of doctors (empty list if file does not exist or contains no valid lines)
+     * @throws IOException when an IO error occurs while reading the file or when a line cannot be parsed
+     */
+    public static List<Doctor> loadDoctorsFromCSV(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        List<Doctor> result = new ArrayList<>();
+
+        if (!Files.exists(path)) {
+            return result;
+        }
+
+        try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue;
+                }
+
+                String[] parts = line.split(",");
+                if (parts.length < 5) {
+                    throw new IOException("Invalid CSV line, expected 5 columns: " + line);
+                }
+
+                try {
+                    int id = Integer.parseInt(parts[0].trim());
+                    String name = parts[1].trim();
+                    int age = Integer.parseInt(parts[2].trim());
+                    String spec = parts[3].trim();
+                    Specialization specialization = spec.isEmpty() ? null : Specialization.valueOf(spec);
+                    double fee = Double.parseDouble(parts[4].trim());
+
+                    Doctor doctor = new Doctor(id, name, age, specialization, fee);
+                    result.add(doctor);
+                } catch (IllegalArgumentException ex) {
+                    throw new IOException("Failed to parse line: " + line, ex);
                 }
             }
         }

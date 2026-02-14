@@ -1,5 +1,7 @@
 package com.airtribe.meditrack.entity;
 
+import java.util.Objects;
+
 public class Doctor extends Person {
 
     private Specialization specialization;
@@ -20,5 +22,18 @@ public class Doctor extends Person {
 
     public double getConsultationFee() {
         return consultationFee;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Doctor doctor = (Doctor) o;
+        return this.getId() == doctor.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId());
     }
 }

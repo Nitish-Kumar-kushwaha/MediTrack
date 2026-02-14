@@ -1,35 +1,45 @@
 package com.airtribe.meditrack.util;
 
+import com.airtribe.meditrack.exception.InvalidDataException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
- * Simple, generic in-memory data store.
+ * A simple, generic in-memory data store for domain objects.
+ * <p>
+ * The class is intentionally lightweight and exposes basic operations to add,
+ * remove and retrieve items. Consumers provide an {@link Function} that
+ * extracts an integer identifier from stored objects for lookups.
  *
- * Responsibilities:
- * - Hold items of type {@code T}
- * - Provide basic query and mutation operations
+ * This implementation keeps a private list of items and returns defensive
+ * copies where appropriate to preserve encapsulation.
  *
- * This class follows immutability/encapsulation best practices by not exposing
- * internal mutable state directly (returns snapshots / unmodifiable lists).
- *
- * @param <T> element type
+ * @param <T> the type of objects stored
  */
-public class DataStore<T> {
+public final class DataStore<T> {
 
     private final List<T> items = new ArrayList<>();
 
     /**
+     * Prevent instantiation; this class is intended to be used as a component.
+     */
+    public DataStore() {
+    }
+
+    /**
      * Adds an item to the store.
      *
-     * @param item the item to add; must not be null
-     * @throws NullPointerException if {@code item} is null
+     * @param item the item to add; must not be {@code null}
+     * @throws InvalidDataException if {@code item} is {@code null}
      */
-    public void add(T item) {
-        Objects.requireNonNull(item, "item must not be null");
+    public synchronized void add(T item) {
+        if (item == null) {
+            throw new InvalidDataException("Item to add must not be null");
+        }
         items.add(item);
     }
 
@@ -39,34 +49,40 @@ public class DataStore<T> {
      * @param item the item to remove
      * @return {@code true} if the item was present and removed, {@code false} otherwise
      */
-    public boolean remove(T item) {
+    public synchronized boolean remove(T item) {
         return items.remove(item);
     }
 
     /**
-     * Returns all items currently in the store as an unmodifiable list snapshot.
+     * Returns an unmodifiable list of all stored items.
      *
-     * @return unmodifiable list of all items
+     * @return an unmodifiable copy of the items
      */
-    public List<T> getAll() {
+    public synchronized List<T> getAll() {
         return Collections.unmodifiableList(new ArrayList<>(items));
     }
 
     /**
-     * Finds items that match the given predicate.
+     * Finds an item by its integer identifier.
      *
-     * @param predicate the predicate to match; must not be null
-     * @return unmodifiable list of matching items (empty if none)
-     * @throws NullPointerException if {@code predicate} is null
+     * @param idExtractor function that extracts the integer id from an item; must not be {@code null}
+     * @param id          the id to search for
+     * @return an {@link Optional} containing the found item, or an empty {@link Optional} if not found
+     * @throws InvalidDataException if {@code idExtractor} is {@code null}
      */
-    public List<T> findByPredicate(Predicate<T> predicate) {
-        Objects.requireNonNull(predicate, "predicate must not be null");
-        List<T> result = new ArrayList<>();
+    public synchronized Optional<T> findById(Function<T, Integer> idExtractor, int id) {
+        Objects.requireNonNull(idExtractor, "idExtractor must not be null");
+
         for (T item : items) {
-            if (predicate.test(item)) {
-                result.add(item);
+            try {
+                Integer itemId = idExtractor.apply(item);
+                if (itemId != null && itemId == id) {
+                    return Optional.of(item);
+                }
+            } catch (RuntimeException ex) {
+                // If extraction fails for a particular item, skip it.
             }
         }
-        return Collections.unmodifiableList(result);
+        return Optional.empty();
     }
 }

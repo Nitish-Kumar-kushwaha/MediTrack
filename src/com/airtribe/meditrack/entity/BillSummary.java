@@ -1,35 +1,47 @@
 package com.airtribe.meditrack.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
 /**
- * Immutable summary of a bill for an appointment.
- *
- * All fields are private and final. The class is final and exposes only getters.
+ * Immutable summary of billing information for an appointment.
+ * <p>
+ * This class is final, all fields are private and final, and it exposes only
+ * getters. {@link LocalDate} is immutable so it is safe to return directly.
  */
 public final class BillSummary {
 
     private final String patientName;
     private final String doctorName;
-    private final BigDecimal totalAmount;
+    private final double totalAmount;
     private final LocalDate appointmentDate;
 
     /**
-     * Constructs a new {@code BillSummary} with the provided values.
+     * Constructs a new {@code BillSummary} instance.
      *
-     * @param patientName     the patient's name, must not be null
-     * @param doctorName      the doctor's name, must not be null
-     * @param totalAmount     the total amount charged, must not be null
-     * @param appointmentDate the appointment date, must not be null
-     * @throws NullPointerException if any argument is null
+     * @param patientName     patient full name, non-null and non-empty
+     * @param doctorName      doctor full name, non-null and non-empty
+     * @param totalAmount     total amount (including taxes), must be finite and non-negative
+     * @param appointmentDate appointment date, non-null
+     * @throws NullPointerException     if {@code patientName}, {@code doctorName} or {@code appointmentDate} is null
+     * @throws IllegalArgumentException if any string is empty or {@code totalAmount} is invalid
      */
-    public BillSummary(String patientName, String doctorName, BigDecimal totalAmount, LocalDate appointmentDate) {
-        this.patientName = Objects.requireNonNull(patientName, "patientName must not be null");
-        this.doctorName = Objects.requireNonNull(doctorName, "doctorName must not be null");
-        this.totalAmount = Objects.requireNonNull(totalAmount, "totalAmount must not be null");
+    public BillSummary(String patientName, String doctorName, double totalAmount, LocalDate appointmentDate) {
+        this.patientName = Objects.requireNonNull(patientName, "patientName must not be null").trim();
+        this.doctorName = Objects.requireNonNull(doctorName, "doctorName must not be null").trim();
         this.appointmentDate = Objects.requireNonNull(appointmentDate, "appointmentDate must not be null");
+
+        if (this.patientName.isEmpty()) {
+            throw new IllegalArgumentException("patientName must not be empty");
+        }
+        if (this.doctorName.isEmpty()) {
+            throw new IllegalArgumentException("doctorName must not be empty");
+        }
+        if (Double.isNaN(totalAmount) || Double.isInfinite(totalAmount) || totalAmount < 0d) {
+            throw new IllegalArgumentException("totalAmount must be a finite non-negative number");
+        }
+
+        this.totalAmount = totalAmount;
     }
 
     /**
@@ -47,9 +59,9 @@ public final class BillSummary {
     }
 
     /**
-     * @return the total amount charged
+     * @return the total billed amount
      */
-    public BigDecimal getTotalAmount() {
+    public double getTotalAmount() {
         return totalAmount;
     }
 
@@ -58,19 +70,6 @@ public final class BillSummary {
      */
     public LocalDate getAppointmentDate() {
         return appointmentDate;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BillSummary that = (BillSummary) o;
-        return patientName.equals(that.patientName) && doctorName.equals(that.doctorName) && totalAmount.equals(that.totalAmount) && appointmentDate.equals(that.appointmentDate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(patientName, doctorName, totalAmount, appointmentDate);
     }
 
     @Override
